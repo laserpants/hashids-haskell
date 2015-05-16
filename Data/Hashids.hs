@@ -365,6 +365,7 @@ encodeList :: Integral n
            => HashidsContext    -- ^ A Hashids context object
            -> [n]               -- ^ List of numbers
            -> String
+encodeList _ [] = error "encodeList: empty list"
 encodeList Context{ alphabet = alphabet@Alphabet{ alphabetLength = len }, .. } numbers = 
      res |> expand (++) 0 
          |> expand (flip (++)) 2 
