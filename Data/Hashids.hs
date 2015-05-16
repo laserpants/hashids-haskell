@@ -380,6 +380,7 @@ encodeList Context{ alphabet = alphabet@Alphabet{ alphabetLength = len }, .. } n
 -- The empty list is returned.
 --
 -- > []
+--
 decode :: Integral n 
        => HashidsContext     -- ^ A Hashids context object
        -> String             -- ^ Hash
