@@ -3,8 +3,8 @@
 
 -- | This is a Haskell port of the Hashids library by Ivan Akimov.
 -- This is /not/ a cryptographic hashing algorithm. Hashids is typically
--- used to encode id numbers to a format suitable for appearance in
--- places like urls.
+-- used to encode numbers to a format suitable for appearance in places 
+-- like urls.
 --
 -- See the official Hashids home page: <http://hashids.org>
 -- 
@@ -17,7 +17,12 @@
 module Data.Hashids 
     ( HashidsContext
       -- * How to use
-      -- $use
+      
+      -- ** Encoding
+      -- $encoding
+
+      -- ** Decoding
+      -- $decoding
 
       -- ** Randomness
       -- $randomness
@@ -60,9 +65,9 @@ import Numeric                  ( showHex, readHex )
 
 import qualified Data.Sequence  as Seq
 
--- $use
+-- $encoding
 --
--- Unless you require a minimum length for the generated hash, create the
+-- Unless you require a minimum length for the generated hash, create a
 -- context using 'hashidsSimple' and then call 'encode' and 'decode' with 
 -- this object.
 -- 
@@ -120,13 +125,37 @@ import qualified Data.Sequence  as Seq
 --
 -- > "Rd"
 --
+-- To encode a list of numbers, use `encodeList`.
+--
+-- > let context = hashidsSimple "this is my salt" in encodeList context [0, 1, 2]
+
+-- $decoding
+--
+-- Decoding a hash returns a list of numbers,
+--
+-- > let context = hashidsSimple "this is my salt"
+-- >      hash = decode context "rD"        -- == [5]
+--
+-- Decoding will not work if the salt is changed:
+--
+-- > main = do
+-- >     let context = hashidsSimple "this is my salt"
+-- >         hash = encode context 5
+-- >     
+-- >     print $ decodeUsingSalt "this is my pepper" hash
+--
+-- When deocing fails, the empty list is returned.
+--
+-- > []
+--
 
 -- $randomness
 --
--- The primary purpose of hashids is to obfuscate ids. It's not meant or tested 
--- to be used for security purposes or compression. Having said that, this 
--- algorithm does try to make these hashes unguessable and unpredictable.
--- See the official Hashids home page for details: <http://hashids.org>
+-- Hashids is based on a modified version of the Fisher-Yates shuffle. The 
+-- primary purpose is to obfuscate ids, and it is not meant for security 
+-- purposes or compression. Having said that, the algorithm does try to make 
+-- hashes unguessable and unpredictable. See the official Hashids home page 
+-- for details: <http://hashids.org>
 
 -- $repeating
 --
@@ -277,6 +306,12 @@ hashidsMinimum :: String          -- ^ Salt
                -> HashidsContext
 hashidsMinimum salt minimum = createHashidsContext salt minimum defaultAlphabet
 
+-- | Encode a hexadecimal number.
+--
+-- /Example use:/
+--
+-- > encodeHex context "ff83"       -- "yzgwD"
+--
 encodeHex :: HashidsContext     -- ^ A Hashids context object
           -> String             -- ^ Hexadecimal number represented as a string
           -> String
@@ -287,6 +322,12 @@ encodeHex context str
     go str = let [(a,_)] = readHex ('1':str) in a
     hexChar c = c `elem` "0123456789abcdef"
 
+-- | Decode a hash generated with 'encodeHex'.
+--
+-- /Example use:/
+--
+-- > decodeHex context "yzgwD"      -- "ff83"
+--
 decodeHex :: HashidsContext     -- ^ A Hashids context object
           -> String             -- ^ Hash
           -> String
@@ -368,18 +409,6 @@ encodeList Context{ alphabet = alphabet@Alphabet{ alphabetLength = len }, .. } n
 --
 -- > let context = hashidsSimple "this is my salt"
 -- >     hash = decode context "rD"        -- == [5]
---
--- Decoding will not work if the salt is changed:
---
--- > main = do
--- >     let context = hashidsSimple "this is my salt"
--- >         hash = encode context 5
--- >     
--- >     print $ decodeUsingSalt "this is my pepper" hash
---
--- The empty list is returned.
---
--- > []
 --
 decode :: Integral n 
        => HashidsContext     -- ^ A Hashids context object
