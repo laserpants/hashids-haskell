@@ -128,6 +128,8 @@ import qualified Data.Sequence  as Seq
 -- To encode a list of numbers, use `encodeList`.
 --
 -- > let context = hashidsSimple "this is my salt" in encodeList context [0, 1, 2]
+--
+-- > "yJUWHx"
 
 -- $decoding
 --
@@ -144,7 +146,7 @@ import qualified Data.Sequence  as Seq
 -- >     
 -- >     print $ decodeUsingSalt "this is my pepper" hash
 --
--- When deocing fails, the empty list is returned.
+-- When decoding fails, the empty list is returned.
 --
 -- > []
 --
