@@ -70,6 +70,7 @@ window.onload = function () {pageLoad();setSynopsis("mini_Data-Hashids.html");};
 </p><pre> &quot;Rd&quot;
 </pre><p>To encode a list of numbers, use <code><a href="Data-Hashids.html#v:encodeList">encodeList</a></code>.
 </p><pre> let context = hashidsSimple &quot;this is my salt&quot; in encodeList context [0, 1, 2]
+</pre><pre> &quot;yJUWHx&quot;
 </pre></div><h2 id="g:3">Decoding
 </h2><div class="doc"><p>Decoding a hash returns a list of numbers,
 </p><pre> let context = hashidsSimple &quot;this is my salt&quot;
@@ -80,7 +81,7 @@ window.onload = function () {pageLoad();setSynopsis("mini_Data-Hashids.html");};
          hash = encode context 5
      
      print $ decodeUsingSalt &quot;this is my pepper&quot; hash
-</pre><p>When deocing fails, the empty list is returned.
+</pre><p>When decoding fails, the empty list is returned.
 </p><pre> []
 </pre></div><h2 id="g:4">Randomness
 </h2><div class="doc"><p>Hashids is based on a modified version of the Fisher-Yates shuffle. The 
