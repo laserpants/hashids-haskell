@@ -2,15 +2,15 @@
 
 Haskell port of the Hashids library. http://hashids.org
 
-* Docs: http://johanneshilden.github.io/hashids-haskell/dist/doc/html/hashids/Web-Hashids.html
 * Hackage: http://hackage.haskell.org/package/hashids
+* Docs: http://hackage.haskell.org/package/hashids-1.0.2/docs/Web-Hashids.html
 
 Install: 
 ```
 cabal install hashids
 ```
 
-Hello World:
+Hello, World:
 ```
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
