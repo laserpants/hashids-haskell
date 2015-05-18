@@ -212,7 +212,7 @@ data HashidsContext = Context
     , minHashLength :: !Int
     , alphabet      :: !ByteString } 
 
--- | Return the version number.
+-- | Hashids version number.
 version :: String
 version = "1.0.2"
 
