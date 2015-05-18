@@ -10,13 +10,13 @@ license-file:        LICENSE
 author:              Johannes Hilden
 maintainer:          hildenjohannes@gmail.com
 -- copyright:           
-category:            Data
+category:            Web
 build-type:          Simple
 -- extra-source-files:  
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.Hashids
+  exposed-modules:     Web.Hashids
   -- other-modules:       
   other-extensions:    RecordWildCards
   build-depends:       base >=4.6, bytestring, containers, split
