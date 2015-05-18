@@ -310,7 +310,7 @@ encodeHex context str
     | otherwise = encodeList context $ map go $ chunksOf 12 str
   where
     go str = let [(a,_)] = readHex ('1':str) in a
-    hexChar c = c `elem` "0123456789abcdef"
+    hexChar c = c `elem` "0123456789abcdefABCDEF"
 
 -- | Decode a hash.
 --
