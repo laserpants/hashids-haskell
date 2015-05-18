@@ -38,6 +38,7 @@ module Data.Hashids
     -- $curses
 
     -- * API
+    , version
     -- ** Context object constructors
     , createHashidsContext    
     , hashidsSimple
@@ -210,6 +211,10 @@ data HashidsContext = Context
     , salt          :: !ByteString
     , minHashLength :: !Int
     , alphabet      :: !ByteString } 
+
+-- | Return the version number.
+version :: String
+version = "1.0.2"
 
 -- | Create a context object using the given salt, a minimum hash length, and 
 --   a custom alphabet. If you only need to supply the salt, or the first two 
