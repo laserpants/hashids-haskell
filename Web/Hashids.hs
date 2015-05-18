@@ -14,7 +14,7 @@
 -- You can also decode those ids back. This is useful in bundling several 
 -- parameters into one or simply using them as short UIDs.
 
-module Data.Hashids 
+module Web.Hashids 
     ( HashidsContext
     -- * How to use
     -- $howto
@@ -80,7 +80,7 @@ import qualified Data.Sequence           as Seq
 -- 
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- >
--- > import Data.Hashids
+-- > import Web.Hashids
 -- >
 -- > main :: IO ()
 -- > main = do
@@ -111,7 +111,7 @@ import qualified Data.Sequence           as Seq
 -- frequently without changing the configuration, it is probably better to 
 -- define partially applied versions of 'encode', 'encodeList', and 'decode'.
 --
--- > import Data.Hashids
+-- > import Web.Hashids
 -- >
 -- > context :: HashidsContext
 -- > context = createHashidsContext "oldsaltyswedishseadog" 12 "abcdefghijklmnopqrstuvwxyz"
