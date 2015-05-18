@@ -69,7 +69,7 @@ import qualified Data.Sequence           as Seq
 
 -- $howto
 --
--- Note that most examples require the OverloadedStrings extension.
+-- Note that most of the examples on this page require the OverloadedStrings extension.
 
 -- $encoding
 --
