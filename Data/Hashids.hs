@@ -198,7 +198,7 @@ import qualified Data.Sequence           as Seq
 splitOn :: ByteString -> ByteString -> [ByteString]
 splitOn = BS.splitWith . flip BS.elem 
 
--- | Opaque data type that encapsulates various internals required for encoding 
+-- | Opaque data type which encapsulates various internals required for encoding 
 --   and decoding.
 data HashidsContext = Context
     { guards        :: !ByteString
