@@ -17,6 +17,7 @@
 module Data.Hashids 
     ( HashidsContext
     -- * How to use
+    -- $howto
     
     -- ** Encoding
     -- $encoding
@@ -65,6 +66,10 @@ import Numeric                           ( showHex, readHex )
 import qualified Data.ByteString         as BS
 import qualified Data.ByteString.Char8   as C8
 import qualified Data.Sequence           as Seq
+
+-- $howto
+--
+-- Note that most examples require the OverloadedStrings extension.
 
 -- $encoding
 --
