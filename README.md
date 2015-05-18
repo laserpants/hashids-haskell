@@ -10,6 +10,7 @@ Install:
 cabal install hashids
 ```
 
+Hello World:
 ```
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
