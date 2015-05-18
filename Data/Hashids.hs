@@ -1,10 +1,10 @@
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE Rank2Types      #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 -- | This is a Haskell port of the Hashids library by Ivan Akimov.
--- This is /not/ a cryptographic hashing algorithm. Hashids is typically
--- used to encode numbers to a format suitable for appearance in places 
--- like urls.
+--   This is /not/ a cryptographic hashing algorithm. Hashids is typically
+--   used to encode numbers to a format suitable for appearance in places 
+--   like urls.
 --
 -- See the official Hashids home page: <http://hashids.org>
 -- 
@@ -16,38 +16,38 @@
 
 module Data.Hashids 
     ( HashidsContext
-      -- * How to use
-      
-      -- ** Encoding
-      -- $encoding
+    -- * How to use
+    
+    -- ** Encoding
+    -- $encoding
 
-      -- ** Decoding
-      -- $decoding
+    -- ** Decoding
+    -- $decoding
 
-      -- ** Randomness
-      -- $randomness
-      
-      -- *** Repeating numbers
-      -- $repeating
+    -- ** Randomness
+    -- $randomness
+    
+    -- *** Repeating numbers
+    -- $repeating
 
-      -- *** Incrementing number sequence
-      -- $incrementing
+    -- *** Incrementing number sequence
+    -- $incrementing
 
-      -- ** Curses\! \#\$\%\@
-      -- $curses
+    -- ** Curses\! \#\$\%\@
+    -- $curses
 
-      -- * API
-      -- ** Context object constructors
+    -- * API
+    -- ** Context object constructors
     , createHashidsContext    
     , hashidsSimple
     , hashidsMinimum
-      -- ** Encoding and decoding
+    -- ** Encoding and decoding
     , encodeHex
     , decodeHex
     , encode
     , encodeList
     , decode
-      -- ** Convenience wrappers
+    -- ** Convenience wrappers
     , encodeUsingSalt 
     , encodeListUsingSalt 
     , decodeUsingSalt 
@@ -55,15 +55,16 @@ module Data.Hashids
     , decodeHexUsingSalt
     ) where
 
-import Data.Char                ( ord )
-import Data.Foldable            ( toList )
-import Data.List                ( (\\), elemIndex, foldl', unfoldr, nub, intersect )
-import Data.List.Split          ( split, oneOf, dropDelims, chunksOf )
-import Data.Maybe               ( fromMaybe )
-import Data.Sequence            ( Seq )
-import Numeric                  ( showHex, readHex )
+import Data.ByteString                   ( ByteString )
+import Data.Foldable                     ( toList )
+import Data.List                         ( (\\), nub, intersect, foldl' )
+import Data.List.Split                   ( chunksOf )
+import Data.Sequence                     ( Seq )
+import Numeric                           ( showHex, readHex )
 
-import qualified Data.Sequence  as Seq
+import qualified Data.ByteString         as BS
+import qualified Data.ByteString.Char8   as C8
+import qualified Data.Sequence           as Seq
 
 -- $encoding
 --
@@ -71,6 +72,8 @@ import qualified Data.Sequence  as Seq
 -- context using 'hashidsSimple' and then call 'encode' and 'decode' with 
 -- this object.
 -- 
+-- > {-# LANGUAGE OverloadedStrings #-}
+-- >
 -- > import Data.Hashids
 -- >
 -- > main :: IO ()
@@ -187,54 +190,22 @@ import qualified Data.Sequence  as Seq
 --
 -- > c, C, s, S, f, F, h, H, u, U, i, I, t, T
 
--- Exchange elements at positions i and j in a sequence.
-exchange :: Int -> Int -> Seq a -> Seq a
-exchange i j seq = i <--> j $ j <--> i $ seq
-  where
-    a <--> b = Seq.update a $ Seq.index seq b
-
-{-# INLINE splitOn #-}
-splitOn :: Eq a => [a] -> [a] -> [[a]]
-splitOn delims = split (dropDelims $ oneOf delims) 
-
 {-# INLINE (|>) #-}
 (|>) :: a -> (a -> b) -> b
 (|>) a f = f a
 
-{-# INLINE lookupMod #-}
-lookupMod :: Integral n => Int -> [a] -> n -> a
-lookupMod modulo xs x = xs !! fromIntegral (x `mod` fromIntegral modulo)
-
-data Alphabet = Alphabet
-    { alphabetGlyphs :: String
-    , alphabetLength :: Int
-    , alphabetLookup :: Integral b => b -> Char
-    , alphabetIndex  :: Char -> Int
-    }
-
-mkAlphabet :: String -> Alphabet 
-mkAlphabet str = Alphabet str len (lookupMod len str) indexOf
-  where
-    indexOf ch = fromMaybe (error "Not in list!") (elemIndex ch str)
-    len = length str
-
-data Salt = Salt
-    { saltLookup :: Integral b => b -> Char
-    , saltLength :: Int }
-
-mkSalt salt = Salt (lookupMod len salt) len
-  where
-    len = length salt
+{-# INLINE splitOn #-}
+splitOn :: ByteString -> ByteString -> [ByteString]
+splitOn = BS.splitWith . flip BS.elem 
 
 -- | Opaque data type that encapsulates various internals required for encoding 
--- and decoding.
+--   and decoding.
 data HashidsContext = Context
-    { guards        :: !String
-    , seps          :: !String
-    , salt          :: !String
+    { guards        :: !ByteString
+    , seps          :: !ByteString
+    , salt          :: !ByteString
     , minHashLength :: !Int
-    , alphabet      :: !Alphabet 
-    } 
+    , alphabet      :: !ByteString } 
 
 -- | Create a context object using the given salt, a minimum hash length, and 
 --   a custom alphabet. If you only need to supply the salt, or the first two 
@@ -243,49 +214,49 @@ data HashidsContext = Context
 --   Changing the alphabet is useful if you want to make your hashes unique,
 --   i.e., create hashes different from those generated by other applications 
 --   relying on the same algorithm.
-createHashidsContext :: String   -- ^ Salt
-                     -> Int      -- ^ Minimum required hash length
-                     -> String   -- ^ Alphabet
+createHashidsContext :: ByteString  -- ^ Salt
+                     -> Int         -- ^ Minimum required hash length
+                     -> String      -- ^ Alphabet
                      -> HashidsContext
 createHashidsContext salt minHashLen alphabet 
     | length uniqueAlphabet < minAlphabetLength
         = error $ "alphabet must contain at least " ++ show minAlphabetLength ++ " unique characters"
     | ' ' `elem` uniqueAlphabet 
         = error "alphabet cannot contain spaces"
-    | null seps'' || fromIntegral (length alphabet') / fromIntegral (length seps'') > sepDiv
-        = case sepsLength - length seps'' of
+    | BS.null seps'' || fromIntegral (BS.length alphabet') / fromIntegral (BS.length seps'') > sepDiv
+        = case sepsLength - BS.length seps'' of
             diff | diff > 0 
-                -> res (drop diff alphabet') (seps'' ++ take diff alphabet')
-            _   -> res alphabet' (take sepsLength seps'')
+                -> res (BS.drop diff alphabet') (seps'' `BS.append` BS.take diff alphabet')
+            _   -> res alphabet' (BS.take sepsLength seps'')
     | otherwise = res alphabet' seps''
   where
 
     res ab _seps = 
-        let shuffled = consistentShuffleS ab salt
-            guardCount = ceiling (fromIntegral (length shuffled) / guardDiv)
+        let shuffled = consistentShuffle ab salt
+            guardCount = ceiling (fromIntegral (BS.length shuffled) / guardDiv)
             context = Context
-                { guards        = take guardCount _seps
-                , seps          = drop guardCount _seps
+                { guards        = BS.take guardCount _seps
+                , seps          = BS.drop guardCount _seps
                 , salt          = salt
                 , minHashLength = minHashLen
-                , alphabet      = mkAlphabet shuffled }
+                , alphabet      = shuffled }
 
-         in if length shuffled < 3
+         in if BS.length shuffled < 3
                 then context
-                else context{ guards   = take guardCount shuffled
+                else context{ guards   = BS.take guardCount shuffled
                             , seps     = _seps
-                            , alphabet = mkAlphabet $ drop guardCount shuffled }
+                            , alphabet = BS.drop guardCount shuffled }
 
-    seps'  = uniqueAlphabet `intersect` seps
-    seps'' = consistentShuffleS seps' salt
+    seps'  = C8.pack $ uniqueAlphabet `intersect` seps
+    seps'' = consistentShuffle seps' salt
 
     sepsLength = 
-        case ceiling (fromIntegral (length alphabet') / sepDiv) of
+        case ceiling (fromIntegral (BS.length alphabet') / sepDiv) of
           1 -> 2
           n -> n
 
     uniqueAlphabet    = nub alphabet
-    alphabet'         = uniqueAlphabet \\ seps
+    alphabet'         = C8.pack $ uniqueAlphabet \\ seps
     minAlphabetLength = 16
     sepDiv            = 3.5
     guardDiv          = 12
@@ -296,115 +267,46 @@ defaultAlphabet = ['a'..'z'] ++ ['A'..'Z'] ++ "1234567890"
 
 -- | Create a context object using the default alphabet and the provided salt,
 --   without any minimum required length.
-hashidsSimple :: String  -- ^ Salt
+hashidsSimple :: ByteString       -- ^ Salt
               -> HashidsContext
 hashidsSimple salt = createHashidsContext salt 0 defaultAlphabet
 
 -- | Create a context object using the default alphabet and the provided salt.
 --   The generated hashes will have a minimum length as specified by the second 
 --   argument.
-hashidsMinimum :: String          -- ^ Salt
+hashidsMinimum :: ByteString      -- ^ Salt
                -> Int             -- ^ Minimum required hash length
                -> HashidsContext
 hashidsMinimum salt minimum = createHashidsContext salt minimum defaultAlphabet
+
+-- | Decode a hash generated with 'encodeHex'.
+--
+-- /Example use:/
+--
+-- > decodeHex context "yzgwD"      
+--
+decodeHex :: HashidsContext     -- ^ A Hashids context object
+          -> ByteString         -- ^ Hash
+          -> String
+decodeHex context hash = concatMap (drop 1 . flip showHex "") numbers
+  where
+    numbers = decode context hash
 
 -- | Encode a hexadecimal number.
 --
 -- /Example use:/
 --
--- > encodeHex context "ff83"       -- "yzgwD"
+-- > encodeHex context "ff83"      
 --
 encodeHex :: HashidsContext     -- ^ A Hashids context object
           -> String             -- ^ Hexadecimal number represented as a string
-          -> String
+          -> ByteString
 encodeHex context str 
     | not (all hexChar str) = ""
     | otherwise = encodeList context $ map go $ chunksOf 12 str
   where
     go str = let [(a,_)] = readHex ('1':str) in a
     hexChar c = c `elem` "0123456789abcdef"
-
--- | Decode a hash generated with 'encodeHex'.
---
--- /Example use:/
---
--- > decodeHex context "yzgwD"      -- "ff83"
---
-decodeHex :: HashidsContext     -- ^ A Hashids context object
-          -> String             -- ^ Hash
-          -> String
-decodeHex context hash = 
-    concatMap (drop 1 . flip showHex "") numbers
-  where
-    numbers = decode context hash
-
-numbersHashInt :: Integral a => [a] -> a
-numbersHashInt xs = foldr ((+) . uncurry mod) 0 $ zip xs [100 .. ]
-
--- | Encode a single number.
---
--- /Example use:/
---
--- > let context = hashidsSimple "this is my salt"
--- >     hash = encode context 5        -- == "rD"
---
-encode :: Integral n 
-       => HashidsContext        -- ^ A Hashids context object
-       -> n                     -- ^ Number to encode
-       -> String
-encode context n = encodeList context [n]
-
--- | Encode a list of numbers.
---
--- /Example use:/
---
--- > let context = hashidsSimple "this is my salt"
--- >     hash = encodeList context [2, 3, 5, 7, 11]          -- == "EOurh6cbTD"
---
-encodeList :: Integral n 
-           => HashidsContext    -- ^ A Hashids context object
-           -> [n]               -- ^ List of numbers
-           -> String
-encodeList _ [] = error "encodeList: empty list"
-encodeList Context{ alphabet = alphabet@Alphabet{ alphabetLength = len }, .. } numbers = 
-     res |> expand (++) 0 
-         |> expand (flip (++)) 2 
-         |> expand' alphabet'
-  where
-    (res, alphabet') = foldl' go ([lottery], alphabet) (zip [0 .. ] numbers)
-
-    expand coalesce index str = coalesce 
-        [ lookupMod guardsLength guards $ ord (str !! index) + fromIntegral hashInt
-            | length str < minHashLength ] str
-
-    expand' ab str
-        | length str >= minHashLength = str
-        | otherwise =
-            let ab'   = consistentShuffle_ ab len (alphabetGlyphs ab)
-                chars = alphabetGlyphs ab'
-                str'  = concat [drop halfLength chars, str, take halfLength chars]
-             in expand' ab' $ case length str' - minHashLength of
-                  n | n > 0 
-                    -> take minHashLength $ drop (div n 2) str'
-                  _ -> str'
-
-    hashInt = numbersHashInt numbers
-    lottery = alphabetLookup alphabet hashInt 
-    prefix  = lottery : salt
-
-    go (r, ab@Alphabet{..}) (i, number)  
-        | number < 0 = error "all numbers must be non-negative"
-        | otherwise  = 
-            let ab'  = consistentShuffle_ ab alphabetLength (prefix ++ alphabetGlyphs)
-                last = hash number ab' 
-                n = (fromIntegral number `mod` (ord (head last) + i)) `mod` sepsLength
-                suffix = [seps !! n | i < lastNumber]
-             in (r ++ last ++ suffix, ab')
-
-    sepsLength   = length seps
-    guardsLength = length guards
-    lastNumber   = length numbers - 1 
-    halfLength   = div len 2
 
 -- | Decode a hash.
 --
@@ -413,13 +315,11 @@ encodeList Context{ alphabet = alphabet@Alphabet{ alphabetLength = len }, .. } n
 -- > let context = hashidsSimple "this is my salt"
 -- >     hash = decode context "rD"        -- == [5]
 --
-decode :: Integral n 
-       => HashidsContext     -- ^ A Hashids context object
-       -> String             -- ^ Hash
-       -> [n]
-decode _ "" = []
+decode :: HashidsContext     -- ^ A Hashids context object
+       -> ByteString         -- ^ Hash
+       -> [Int]
 decode ctx@Context{..} hash 
-    | "" == str = []
+    | BS.null hash = []
     | encodeList ctx res /= hash = []
     | otherwise = res
   where
@@ -429,36 +329,112 @@ decode ctx@Context{..} hash
             |> reverse
 
     hashArray = splitOn guards hash
-    (Alphabet glyphs len _ _) = alphabet
+    alphabetLength = BS.length alphabet
 
-    str@(lottery:tail) = 
-         hashArray !! case length hashArray of
+    Just str@(lottery, tail) = 
+         BS.uncons $ hashArray !! case length hashArray of
             0 -> error "Internal error."
             2 -> 1
             3 -> 1
             _ -> 0
 
-    prefix = lottery : salt
+    prefix = BS.cons lottery salt
+
     go (xs, ab) ssh = 
-        let buffer = prefix ++ alphabetGlyphs ab
-            ab'    = consistentShuffle_ ab len buffer
+        let buffer = prefix `BS.append` ab
+            ab'    = consistentShuffle ab buffer
          in (unhash ssh ab':xs, ab')
 
-consistentShuffleS :: String -> String -> String
-consistentShuffleS alphabet salt = alphabetGlyphs $ consistentShuffle (mkAlphabet alphabet) (mkSalt salt)
+numbersHashInt :: [Int] -> Int
+numbersHashInt xs = foldr ((+) . uncurry mod) 0 $ zip xs [100 .. ]
 
-consistentShuffle_ :: Alphabet -> Int -> String -> Alphabet 
-consistentShuffle_ alphabet len = consistentShuffle alphabet . mkSalt . take len 
+-- | Encode a single number.
+--
+-- /Example use:/
+--
+-- > let context = hashidsSimple "this is my salt"
+-- >     hash = encode context 5        -- == "rD"
+--
+encode :: HashidsContext        -- ^ A Hashids context object
+       -> Int                   -- ^ Number to encode
+       -> ByteString
+encode context n = encodeList context [n]
 
-consistentShuffle :: Alphabet -> Salt -> Alphabet 
-consistentShuffle alphabet@Alphabet{..} Salt{..} 
-    | 0 == saltLength = alphabet
-    | otherwise      = mkAlphabet $ toList x 
+-- | Encode a list of numbers.
+--
+-- /Example use:/
+--
+-- > let context = hashidsSimple "this is my salt"
+-- >     hash = encodeList context [2, 3, 5, 7, 11]          -- == "EOurh6cbTD"
+--
+encodeList :: HashidsContext    -- ^ A Hashids context object
+           -> [Int]             -- ^ List of numbers
+           -> ByteString
+encodeList _ [] = error "encodeList: empty list"
+encodeList Context{..} numbers = 
+    res |> expand False |> BS.reverse 
+        |> expand True  |> BS.reverse
+        |> expand' alphabet'
   where
-    (_,x) = zip3 [len, pred len .. 1] xs ys |> foldl' go (0, Seq.fromList alphabetGlyphs) 
+    (res, alphabet') = foldl' go (BS.singleton lottery, alphabet) (zip [0 .. ] numbers)
+
+    expand rep str 
+        | BS.length str < minHashLength
+            = let ix = if rep then BS.length str - 3 else 0
+                  jx = fromIntegral (BS.index str ix) + hashInt 
+               in BS.index guards (jx `mod` guardsLength) `BS.cons` str
+        | otherwise = str
+
+    expand' ab str 
+        | BS.length str < minHashLength
+            = let ab'  = consistentShuffle ab ab
+                  str' = BS.concat [BS.drop halfLength ab', str, BS.take halfLength ab']
+               in expand' ab' $ case BS.length str' - minHashLength of
+                    n | n > 0
+                      -> BS.take minHashLength $ BS.drop (div n 2) str'
+                    _ -> str'
+        | otherwise = str
+
+    hashInt = numbersHashInt numbers
+    lottery = alphabet `BS.index` (hashInt `mod` alphabetLength)
+    prefix  = BS.cons lottery salt
+    numLast = length numbers - 1
+    guardsLength   = BS.length guards
+    alphabetLength = BS.length alphabet
+    halfLength     = div alphabetLength 2
+
+    go (r, ab) (i, number)
+        | number < 0 = error "all numbers must be non-negative"
+        | otherwise =
+            let shuffled = consistentShuffle ab (BS.append prefix ab)
+                last = hash number shuffled 
+                n = number `mod` (fromIntegral (BS.head last) + i) `mod` BS.length seps
+                suffix = if i < numLast
+                            then BS.singleton (seps `BS.index` n)
+                            else BS.empty
+             in (BS.concat [r,last,suffix], shuffled)
+
+-- Exchange elements at positions i and j in a sequence.
+exchange :: Int -> Int -> Seq a -> Seq a
+exchange i j seq = i <--> j $ j <--> i $ seq
+  where
+    a <--> b = Seq.update a $ Seq.index seq b
+
+consistentShuffle :: ByteString -> ByteString -> ByteString
+consistentShuffle alphabet salt 
+    | 0 == saltLength = alphabet
+    | otherwise = BS.pack $ toList x
+  where
+    (_,x) = zip3 [len, pred len .. 1] xs ys |> foldl' go (0, toSeq alphabet) 
 
     xs = cycle [0 .. saltLength - 1]
-    ys = map (ord . saltLookup) xs
+    ys = map (fromIntegral . saltLookup) xs
+
+    saltLookup ix = BS.index salt (ix `mod` saltLength)
+    saltLength = BS.length salt
+
+    toSeq = BS.foldl' (Seq.|>) Seq.empty
+    len = BS.length alphabet - 1
 
     go (p, ab) (i, v, ch) =  
         let shuffled = exchange i j ab
@@ -466,33 +442,31 @@ consistentShuffle alphabet@Alphabet{..} Salt{..}
             j  = mod (ch + v + p') i
          in (p', shuffled)
 
-    len = alphabetLength - 1
-
-unhash :: Integral n => String -> Alphabet -> n
-unhash input Alphabet{..} = foldl' go 0 $ zip [len, len - 1 .. ] input 
+unhash :: ByteString -> ByteString -> Int
+unhash input alphabet = fst $ BS.foldl' go (0, pred $ BS.length input) input
   where
-    go number (i, char) = 
-        number + fromIntegral (alphabetIndex char * alphabetLength ^ i)
-    len = pred $ length input
+    go (num, i) w8 =
+        let Just index = BS.elemIndex w8 alphabet
+         in (num + index * alphabetLength ^ i, pred i)
+    alphabetLength = BS.length alphabet
 
-hash :: Integral n => n -> Alphabet -> String
-hash input Alphabet{..}  
-    | 0 == input = [alphabetLookup input]
-    | otherwise = go (input, [])
+hash :: Int -> ByteString -> ByteString
+hash input alphabet
+    | 0 == input = BS.take 1 alphabet
+    | otherwise = BS.reverse $ BS.unfoldr go input
   where
-    len = fromIntegral alphabetLength
-    go (0, xs) = xs
-    go (x, xs) = go (div x len, alphabetLookup x:xs)
+    len = BS.length alphabet
+    go 0 = Nothing
+    go i = Just (alphabet `BS.index` (i `mod` len), div i len)
 
 -- | Encode a number using the provided salt. 
 --
 --   This convenience function creates a context with the default alphabet. 
 --   If the same context is used repeatedly, use 'encode' with one of the 
 --   constructors instead.
-encodeUsingSalt :: Integral n 
-                => String         -- ^ Salt
-                -> n              -- ^ Number
-                -> String
+encodeUsingSalt :: ByteString     -- ^ Salt
+                -> Int            -- ^ Number
+                -> ByteString
 encodeUsingSalt = encode . hashidsSimple
 
 -- | Encode a list of numbers using the provided salt. 
@@ -500,10 +474,9 @@ encodeUsingSalt = encode . hashidsSimple
 --   This function wrapper creates a context with the default alphabet. 
 --   If the same context is used repeatedly, use 'encodeList' with one of the
 --   constructors instead.
-encodeListUsingSalt :: Integral n 
-                    => String     -- ^ Salt
-                    -> [n]        -- ^ Numbers
-                    -> String
+encodeListUsingSalt :: ByteString -- ^ Salt
+                    -> [Int]      -- ^ Numbers
+                    -> ByteString
 encodeListUsingSalt = encodeList . hashidsSimple
 
 -- | Decode a hash using the provided salt. 
@@ -511,21 +484,19 @@ encodeListUsingSalt = encodeList . hashidsSimple
 --   This convenience function creates a context with the default alphabet. 
 --   If the same context is used repeatedly, use 'decode' with one of the 
 --   constructors instead.
-decodeUsingSalt :: Integral n 
-                => String         -- ^ Salt
-                -> String         -- ^ Hash
-                -> [n]
+decodeUsingSalt :: ByteString     -- ^ Salt
+                -> ByteString     -- ^ Hash
+                -> [Int]
 decodeUsingSalt = decode . hashidsSimple
 
 -- | Shortcut for 'encodeHex'.
-encodeHexUsingSalt :: String      -- ^ Salt
+encodeHexUsingSalt :: ByteString  -- ^ Salt
                    -> String      -- ^ Hexadecimal number represented as a string
-                   -> String
+                   -> ByteString
 encodeHexUsingSalt = encodeHex . hashidsSimple
 
 -- | Shortcut for 'decodeHex'.
-decodeHexUsingSalt :: String      -- ^ Salt
-                   -> String      -- ^ Hash
+decodeHexUsingSalt :: ByteString  -- ^ Salt
+                   -> ByteString  -- ^ Hash
                    -> String
 decodeHexUsingSalt = decodeHex . hashidsSimple
-
