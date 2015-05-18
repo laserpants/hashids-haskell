@@ -38,6 +38,7 @@ module Data.Hashids
     -- $curses
 
     -- * API
+    , version
     -- ** Context object constructors
     , createHashidsContext    
     , hashidsSimple
@@ -211,6 +212,10 @@ data HashidsContext = Context
     , minHashLength :: !Int
     , alphabet      :: !ByteString } 
 
+-- | Hashids version number.
+version :: String
+version = "1.0.2"
+
 -- | Create a context object using the given salt, a minimum hash length, and 
 --   a custom alphabet. If you only need to supply the salt, or the first two 
 --   arguments, use 'hashidsSimple' or 'hashidsMinimum' instead.
@@ -310,7 +315,7 @@ encodeHex context str
     | otherwise = encodeList context $ map go $ chunksOf 12 str
   where
     go str = let [(a,_)] = readHex ('1':str) in a
-    hexChar c = c `elem` "0123456789abcdef"
+    hexChar c = c `elem` "0123456789abcdefABCDEF"
 
 -- | Decode a hash.
 --
