@@ -3,22 +3,22 @@
 
 -- | This is a Haskell port of the Hashids library by Ivan Akimov.
 --   This is /not/ a cryptographic hashing algorithm. Hashids is typically
---   used to encode numbers to a format suitable for appearance in places 
+--   used to encode numbers to a format suitable for appearance in places
 --   like urls.
 --
 -- See the official Hashids home page: <http://hashids.org>
--- 
--- Hashids is a small open-source library that generates short, unique, 
--- non-sequential ids from numbers. It converts numbers like 347 into 
+--
+-- Hashids is a small open-source library that generates short, unique,
+-- non-sequential ids from numbers. It converts numbers like 347 into
 -- strings like @yr8@, or a list of numbers like [27, 986] into @3kTMd@.
--- You can also decode those ids back. This is useful in bundling several 
+-- You can also decode those ids back. This is useful in bundling several
 -- parameters into one or simply using them as short UIDs.
 
-module Web.Hashids 
+module Web.Hashids
     ( HashidsContext
     -- * How to use
     -- $howto
-    
+
     -- ** Encoding
     -- $encoding
 
@@ -27,7 +27,7 @@ module Web.Hashids
 
     -- ** Randomness
     -- $randomness
-    
+
     -- *** Repeating numbers
     -- $repeating
 
@@ -40,7 +40,7 @@ module Web.Hashids
     -- * API
     , version
     -- ** Context object constructors
-    , createHashidsContext    
+    , createHashidsContext
     , hashidsSimple
     , hashidsMinimum
     -- ** Encoding and decoding
@@ -50,9 +50,9 @@ module Web.Hashids
     , encodeList
     , decode
     -- ** Convenience wrappers
-    , encodeUsingSalt 
-    , encodeListUsingSalt 
-    , decodeUsingSalt 
+    , encodeUsingSalt
+    , encodeListUsingSalt
+    , decodeUsingSalt
     , encodeHexUsingSalt
     , decodeHexUsingSalt
     ) where
@@ -75,9 +75,9 @@ import qualified Data.Sequence           as Seq
 -- $encoding
 --
 -- Unless you require a minimum length for the generated hash, create a
--- context using 'hashidsSimple' and then call 'encode' and 'decode' with 
+-- context using 'hashidsSimple' and then call 'encode' and 'decode' with
 -- this object.
--- 
+--
 -- > {-# LANGUAGE OverloadedStrings #-}
 -- >
 -- > import Web.Hashids
@@ -101,14 +101,14 @@ import qualified Data.Sequence           as Seq
 --
 -- > "W3xbdkgdy42v"
 --
--- If you only need the context once, you can use one of the provided wrappers 
+-- If you only need the context once, you can use one of the provided wrappers
 -- to simplify things.
 --
 -- > main :: IO ()
 -- > main = print $ encodeUsingSalt "oldsaltyswedishseadog" 42
 --
 -- On the other hand, if your implementation invokes the hashing algorithm
--- frequently without changing the configuration, it is probably better to 
+-- frequently without changing the configuration, it is probably better to
 -- define partially applied versions of 'encode', 'encodeList', and 'decode'.
 --
 -- > import Web.Hashids
@@ -123,7 +123,7 @@ import qualified Data.Sequence           as Seq
 -- > main :: IO ()
 -- > main = print $ encode' 12345
 --
--- Use a custom alphabet and 'createHashidsContext' if you want to make your 
+-- Use a custom alphabet and 'createHashidsContext' if you want to make your
 -- hashes \"unique\".
 --
 -- > main = do
@@ -152,7 +152,7 @@ import qualified Data.Sequence           as Seq
 -- > main = do
 -- >     let context = hashidsSimple "this is my salt"
 -- >         hash = encode context 5
--- >     
+-- >
 -- >     print $ decodeUsingSalt "this is my pepper" hash
 --
 -- When decoding fails, the empty list is returned.
@@ -162,17 +162,17 @@ import qualified Data.Sequence           as Seq
 
 -- $randomness
 --
--- Hashids is based on a modified version of the Fisher-Yates shuffle. The 
--- primary purpose is to obfuscate ids, and it is not meant for security 
--- purposes or compression. Having said that, the algorithm does try to make 
--- hashes unguessable and unpredictable. See the official Hashids home page 
+-- Hashids is based on a modified version of the Fisher-Yates shuffle. The
+-- primary purpose is to obfuscate ids, and it is not meant for security
+-- purposes or compression. Having said that, the algorithm does try to make
+-- hashes unguessable and unpredictable. See the official Hashids home page
 -- for details: <http://hashids.org>
 
 -- $repeating
 --
 -- > let context = hashidsSimple "this is my salt" in encodeList context $ replicate 4 5
 --
--- There are no repeating patterns in the hash to suggest that four identical 
+-- There are no repeating patterns in the hash to suggest that four identical
 -- numbers are used:
 --
 -- > "1Wc8cwcE"
@@ -190,8 +190,8 @@ import qualified Data.Sequence           as Seq
 -- > ["NV","6m","yD","2l","rD"]
 
 -- $curses
--- 
--- The algorithm tries to avoid generating common curse words in English by 
+--
+-- The algorithm tries to avoid generating common curse words in English by
 -- never placing the following letters next to each other:
 --
 -- > c, C, s, S, f, F, h, H, u, U, i, I, t, T
@@ -202,7 +202,7 @@ import qualified Data.Sequence           as Seq
 
 {-# INLINE splitOn #-}
 splitOn :: ByteString -> ByteString -> [ByteString]
-splitOn = BS.splitWith . flip BS.elem 
+splitOn = BS.splitWith . flip BS.elem
 
 -- | Opaque data type with various internals required for encoding and decoding.
 data HashidsContext = Context
@@ -210,37 +210,37 @@ data HashidsContext = Context
     , seps          :: !ByteString
     , salt          :: !ByteString
     , minHashLength :: !Int
-    , alphabet      :: !ByteString } 
+    , alphabet      :: !ByteString }
 
 -- | Hashids version number.
 version :: String
 version = "1.0.2"
 
--- | Create a context object using the given salt, a minimum hash length, and 
---   a custom alphabet. If you only need to supply the salt, or the first two 
+-- | Create a context object using the given salt, a minimum hash length, and
+--   a custom alphabet. If you only need to supply the salt, or the first two
 --   arguments, use 'hashidsSimple' or 'hashidsMinimum' instead.
 --
 --   Changing the alphabet is useful if you want to make your hashes unique,
---   i.e., create hashes different from those generated by other applications 
+--   i.e., create hashes different from those generated by other applications
 --   relying on the same algorithm.
 createHashidsContext :: ByteString  -- ^ Salt
                      -> Int         -- ^ Minimum required hash length
                      -> String      -- ^ Alphabet
                      -> HashidsContext
-createHashidsContext salt minHashLen alphabet 
+createHashidsContext salt minHashLen alphabet
     | length uniqueAlphabet < minAlphabetLength
         = error $ "alphabet must contain at least " ++ show minAlphabetLength ++ " unique characters"
-    | ' ' `elem` uniqueAlphabet 
+    | ' ' `elem` uniqueAlphabet
         = error "alphabet cannot contain spaces"
     | BS.null seps'' || fromIntegral (BS.length alphabet') / fromIntegral (BS.length seps'') > sepDiv
         = case sepsLength - BS.length seps'' of
-            diff | diff > 0 
+            diff | diff > 0
                 -> res (BS.drop diff alphabet') (seps'' `BS.append` BS.take diff alphabet')
             _   -> res alphabet' (BS.take sepsLength seps'')
     | otherwise = res alphabet' seps''
   where
 
-    res ab _seps = 
+    res ab _seps =
         let shuffled = consistentShuffle ab salt
             guardCount = ceiling (fromIntegral (BS.length shuffled) / guardDiv)
             context = Context
@@ -259,7 +259,7 @@ createHashidsContext salt minHashLen alphabet
     seps'  = C8.pack $ uniqueAlphabet `intersect` seps
     seps'' = consistentShuffle seps' salt
 
-    sepsLength = 
+    sepsLength =
         case ceiling (fromIntegral (BS.length alphabet') / sepDiv) of
           1 -> 2
           n -> n
@@ -281,7 +281,7 @@ hashidsSimple :: ByteString       -- ^ Salt
 hashidsSimple salt = createHashidsContext salt 0 defaultAlphabet
 
 -- | Create a context object using the default alphabet and the provided salt.
---   The generated hashes will have a minimum length as specified by the second 
+--   The generated hashes will have a minimum length as specified by the second
 --   argument.
 hashidsMinimum :: ByteString      -- ^ Salt
                -> Int             -- ^ Minimum required hash length
@@ -292,7 +292,7 @@ hashidsMinimum salt minimum = createHashidsContext salt minimum defaultAlphabet
 --
 -- /Example use:/
 --
--- > decodeHex context "yzgwD"      
+-- > decodeHex context "yzgwD"
 --
 decodeHex :: HashidsContext     -- ^ A Hashids context object
           -> ByteString         -- ^ Hash
@@ -305,17 +305,17 @@ decodeHex context hash = concatMap (drop 1 . flip showHex "") numbers
 --
 -- /Example use:/
 --
--- > encodeHex context "ff83"      
+-- > encodeHex context "ff83"
 --
 encodeHex :: HashidsContext     -- ^ A Hashids context object
           -> String             -- ^ Hexadecimal number represented as a string
           -> ByteString
-encodeHex context str 
+encodeHex context str
     | not (all hexChar str) = ""
     | otherwise = encodeList context $ map go $ chunksOf 12 str
   where
     go str = let [(a,_)] = readHex ('1':str) in a
-    hexChar c = c `elem` "0123456789abcdefABCDEF"
+    hexChar c = c `elem` ("0123456789abcdefABCDEF" :: String)
 
 -- | Decode a hash.
 --
@@ -327,20 +327,20 @@ encodeHex context str
 decode :: HashidsContext     -- ^ A Hashids context object
        -> ByteString         -- ^ Hash
        -> [Int]
-decode ctx@Context{..} hash 
+decode ctx@Context{..} hash
     | BS.null hash = []
     | encodeList ctx res /= hash = []
     | otherwise = res
   where
     res = splitOn seps tail
-            |> foldl' go ([], alphabet) 
+            |> foldl' go ([], alphabet)
             |> fst
             |> reverse
 
     hashArray = splitOn guards hash
     alphabetLength = BS.length alphabet
 
-    Just str@(lottery, tail) = 
+    Just str@(lottery, tail) =
          BS.uncons $ hashArray !! case length hashArray of
             0 -> error "Internal error."
             2 -> 1
@@ -349,7 +349,7 @@ decode ctx@Context{..} hash
 
     prefix = BS.cons lottery salt
 
-    go (xs, ab) ssh = 
+    go (xs, ab) ssh =
         let buffer = prefix `BS.append` ab
             ab'    = consistentShuffle ab buffer
          in (unhash ssh ab':xs, ab')
@@ -380,21 +380,21 @@ encodeList :: HashidsContext    -- ^ A Hashids context object
            -> [Int]             -- ^ List of numbers
            -> ByteString
 encodeList _ [] = error "encodeList: empty list"
-encodeList Context{..} numbers = 
-    res |> expand False |> BS.reverse 
+encodeList Context{..} numbers =
+    res |> expand False |> BS.reverse
         |> expand True  |> BS.reverse
         |> expand' alphabet'
   where
     (res, alphabet') = foldl' go (BS.singleton lottery, alphabet) (zip [0 .. ] numbers)
 
-    expand rep str 
+    expand rep str
         | BS.length str < minHashLength
             = let ix = if rep then BS.length str - 3 else 0
-                  jx = fromIntegral (BS.index str ix) + hashInt 
+                  jx = fromIntegral (BS.index str ix) + hashInt
                in BS.index guards (jx `mod` guardsLength) `BS.cons` str
         | otherwise = str
 
-    expand' ab str 
+    expand' ab str
         | BS.length str < minHashLength
             = let ab'  = consistentShuffle ab ab
                   str' = BS.concat [BS.drop halfLength ab', str, BS.take halfLength ab']
@@ -416,7 +416,7 @@ encodeList Context{..} numbers =
         | number < 0 = error "all numbers must be non-negative"
         | otherwise =
             let shuffled = consistentShuffle ab (BS.append prefix ab)
-                last = hash number shuffled 
+                last = hash number shuffled
                 n = number `mod` (fromIntegral (BS.head last) + i) `mod` BS.length seps
                 suffix = if i < numLast
                             then BS.singleton (seps `BS.index` n)
@@ -430,11 +430,11 @@ exchange i j seq = i <--> j $ j <--> i $ seq
     a <--> b = Seq.update a $ Seq.index seq b
 
 consistentShuffle :: ByteString -> ByteString -> ByteString
-consistentShuffle alphabet salt 
+consistentShuffle alphabet salt
     | 0 == saltLength = alphabet
     | otherwise = BS.pack $ toList x
   where
-    (_,x) = zip3 [len, pred len .. 1] xs ys |> foldl' go (0, toSeq alphabet) 
+    (_,x) = zip3 [len, pred len .. 1] xs ys |> foldl' go (0, toSeq alphabet)
 
     xs = cycle [0 .. saltLength - 1]
     ys = map (fromIntegral . saltLookup) xs
@@ -445,7 +445,7 @@ consistentShuffle alphabet salt
     toSeq = BS.foldl' (Seq.|>) Seq.empty
     len = BS.length alphabet - 1
 
-    go (p, ab) (i, v, ch) =  
+    go (p, ab) (i, v, ch) =
         let shuffled = exchange i j ab
             p' = p + ch
             j  = mod (ch + v + p') i
@@ -468,19 +468,19 @@ hash input alphabet
     go 0 = Nothing
     go i = Just (alphabet `BS.index` (i `mod` len), div i len)
 
--- | Encode a number using the provided salt. 
+-- | Encode a number using the provided salt.
 --
---   This convenience function creates a context with the default alphabet. 
---   If the same context is used repeatedly, use 'encode' with one of the 
+--   This convenience function creates a context with the default alphabet.
+--   If the same context is used repeatedly, use 'encode' with one of the
 --   constructors instead.
 encodeUsingSalt :: ByteString     -- ^ Salt
                 -> Int            -- ^ Number
                 -> ByteString
 encodeUsingSalt = encode . hashidsSimple
 
--- | Encode a list of numbers using the provided salt. 
+-- | Encode a list of numbers using the provided salt.
 --
---   This function wrapper creates a context with the default alphabet. 
+--   This function wrapper creates a context with the default alphabet.
 --   If the same context is used repeatedly, use 'encodeList' with one of the
 --   constructors instead.
 encodeListUsingSalt :: ByteString -- ^ Salt
@@ -488,10 +488,10 @@ encodeListUsingSalt :: ByteString -- ^ Salt
                     -> ByteString
 encodeListUsingSalt = encodeList . hashidsSimple
 
--- | Decode a hash using the provided salt. 
+-- | Decode a hash using the provided salt.
 --
---   This convenience function creates a context with the default alphabet. 
---   If the same context is used repeatedly, use 'decode' with one of the 
+--   This convenience function creates a context with the default alphabet.
+--   If the same context is used repeatedly, use 'decode' with one of the
 --   constructors instead.
 decodeUsingSalt :: ByteString     -- ^ Salt
                 -> ByteString     -- ^ Hash
