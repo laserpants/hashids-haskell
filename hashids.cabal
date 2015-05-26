@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                hashids
-version:             1.0.2
+version:             1.0.2.1
 synopsis:            
 description:         This is a Haskell port of the Hashids library. Hashids generates short, unique, non-sequential ids from numbers. 
 license:             MIT
