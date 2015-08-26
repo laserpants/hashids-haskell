@@ -22,8 +22,8 @@ import Web.Hashids
 main :: IO ()
 main = do
     let hashids = hashidsSimple "this is my salt"
-        id = encodeList hashids [1, 2, 3]
-        numbers = decode hashids id
+        ids = encodeList hashids [1, 2, 3]
+        numbers = decode hashids ids
 
-    print (id, numbers)
+    print (ids, numbers)
 ```
