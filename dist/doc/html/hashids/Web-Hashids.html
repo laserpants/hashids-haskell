@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Web.Hashids</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
 window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 //]]>
-</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">hashids-1.0.2</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>Safe-Inferred</td></tr></table><p class="caption">Web.Hashids</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">How to use
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">hashids-1.0.2.2: Hashids generates short, unique, non-sequential ids from numbers.</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>Safe-Inferred</td></tr></table><p class="caption">Web.Hashids</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">How to use
 </a><ul><li><a href="#g:2">Encoding
 </a></li><li><a href="#g:3">Decoding
 </a></li><li><a href="#g:4">Randomness
@@ -14,20 +14,20 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </a></li><li><a href="#g:11">Convenience wrappers
 </a></li></ul></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>This is a Haskell port of the Hashids library by Ivan Akimov.
    This is <em>not</em> a cryptographic hashing algorithm. Hashids is typically
-   used to encode numbers to a format suitable for appearance in places 
+   used to encode numbers to a format suitable for appearance in places
    like urls.
 </p><p>See the official Hashids home page: <a href="http://hashids.org">http://hashids.org</a>
-</p><p>Hashids is a small open-source library that generates short, unique, 
- non-sequential ids from numbers. It converts numbers like 347 into 
+</p><p>Hashids is a small open-source library that generates short, unique,
+ non-sequential ids from numbers. It converts numbers like 347 into
  strings like <code>yr8</code>, or a list of numbers like [27, 986] into <code>3kTMd</code>.
- You can also decode those ids back. This is useful in bundling several 
+ You can also decode those ids back. This is useful in bundling several
  parameters into one or simply using them as short UIDs.
 </p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><span class="keyword">data</span>  <a href="#t:HashidsContext">HashidsContext</a> </li><li class="src short"><a href="#v:version">version</a> :: String</li><li class="src short"><a href="#v:createHashidsContext">createHashidsContext</a> :: ByteString -&gt; Int -&gt; String -&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></li><li class="src short"><a href="#v:hashidsSimple">hashidsSimple</a> :: ByteString -&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></li><li class="src short"><a href="#v:hashidsMinimum">hashidsMinimum</a> :: ByteString -&gt; Int -&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></li><li class="src short"><a href="#v:encodeHex">encodeHex</a> :: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a> -&gt; String -&gt; ByteString</li><li class="src short"><a href="#v:decodeHex">decodeHex</a> :: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a> -&gt; ByteString -&gt; String</li><li class="src short"><a href="#v:encode">encode</a> :: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a> -&gt; Int -&gt; ByteString</li><li class="src short"><a href="#v:encodeList">encodeList</a> :: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a> -&gt; [Int] -&gt; ByteString</li><li class="src short"><a href="#v:decode">decode</a> :: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a> -&gt; ByteString -&gt; [Int]</li><li class="src short"><a href="#v:encodeUsingSalt">encodeUsingSalt</a> :: ByteString -&gt; Int -&gt; ByteString</li><li class="src short"><a href="#v:encodeListUsingSalt">encodeListUsingSalt</a> :: ByteString -&gt; [Int] -&gt; ByteString</li><li class="src short"><a href="#v:decodeUsingSalt">decodeUsingSalt</a> :: ByteString -&gt; ByteString -&gt; [Int]</li><li class="src short"><a href="#v:encodeHexUsingSalt">encodeHexUsingSalt</a> :: ByteString -&gt; String -&gt; ByteString</li><li class="src short"><a href="#v:decodeHexUsingSalt">decodeHexUsingSalt</a> :: ByteString -&gt; ByteString -&gt; String</li></ul></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src"><span class="keyword">data</span>  <a name="t:HashidsContext" class="def">HashidsContext</a>  </p><div class="doc"><p>Opaque data type with various internals required for encoding and decoding.
 </p></div></div><h1 id="g:1">How to use
 </h1><div class="doc"><p>Note that most of the examples on this page require the OverloadedStrings extension.
 </p></div><h2 id="g:2">Encoding
 </h2><div class="doc"><p>Unless you require a minimum length for the generated hash, create a
- context using <code><a href="Web-Hashids.html#v:hashidsSimple">hashidsSimple</a></code> and then call <code><a href="Web-Hashids.html#v:encode">encode</a></code> and <code><a href="Web-Hashids.html#v:decode">decode</a></code> with 
+ context using <code><a href="Web-Hashids.html#v:hashidsSimple">hashidsSimple</a></code> and then call <code><a href="Web-Hashids.html#v:encode">encode</a></code> and <code><a href="Web-Hashids.html#v:decode">decode</a></code> with
  this object.
 </p><pre> {-# LANGUAGE OverloadedStrings #-}
 
@@ -45,12 +45,12 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
      print $ encode context 42
 </pre><p>The output will now be
 </p><pre> &quot;W3xbdkgdy42v&quot;
-</pre><p>If you only need the context once, you can use one of the provided wrappers 
+</pre><p>If you only need the context once, you can use one of the provided wrappers
  to simplify things.
 </p><pre> main :: IO ()
  main = print $ encodeUsingSalt &quot;oldsaltyswedishseadog&quot; 42
 </pre><p>On the other hand, if your implementation invokes the hashing algorithm
- frequently without changing the configuration, it is probably better to 
+ frequently without changing the configuration, it is probably better to
  define partially applied versions of <code><a href="Web-Hashids.html#v:encode">encode</a></code>, <code><a href="Web-Hashids.html#v:encodeList">encodeList</a></code>, and <code><a href="Web-Hashids.html#v:decode">decode</a></code>.
 </p><pre> import Web.Hashids
 
@@ -63,7 +63,7 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 
  main :: IO ()
  main = print $ encode' 12345
-</pre><p>Use a custom alphabet and <code><a href="Web-Hashids.html#v:createHashidsContext">createHashidsContext</a></code> if you want to make your 
+</pre><p>Use a custom alphabet and <code><a href="Web-Hashids.html#v:createHashidsContext">createHashidsContext</a></code> if you want to make your
  hashes &quot;unique&quot;.
 </p><pre> main = do
      let context = createHashidsContext &quot;oldsaltyswedishseadog&quot; 0 &quot;XbrNfdylm5qtnP19R&quot;
@@ -81,19 +81,19 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </p><pre> main = do
      let context = hashidsSimple &quot;this is my salt&quot;
          hash = encode context 5
-     
+
      print $ decodeUsingSalt &quot;this is my pepper&quot; hash
 </pre><p>When decoding fails, the empty list is returned.
 </p><pre> []
 </pre></div><h2 id="g:4">Randomness
-</h2><div class="doc"><p>Hashids is based on a modified version of the Fisher-Yates shuffle. The 
- primary purpose is to obfuscate ids, and it is not meant for security 
- purposes or compression. Having said that, the algorithm does try to make 
- hashes unguessable and unpredictable. See the official Hashids home page 
+</h2><div class="doc"><p>Hashids is based on a modified version of the Fisher-Yates shuffle. The
+ primary purpose is to obfuscate ids, and it is not meant for security
+ purposes or compression. Having said that, the algorithm does try to make
+ hashes unguessable and unpredictable. See the official Hashids home page
  for details: <a href="http://hashids.org">http://hashids.org</a>
 </p></div><h3 id="g:5">Repeating numbers
 </h3><div class="doc"><pre> let context = hashidsSimple &quot;this is my salt&quot; in encodeList context $ replicate 4 5
-</pre><p>There are no repeating patterns in the hash to suggest that four identical 
+</pre><p>There are no repeating patterns in the hash to suggest that four identical
  numbers are used:
 </p><pre> &quot;1Wc8cwcE&quot;
 </pre><p>The same is true for increasing numbers:
@@ -103,7 +103,7 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </h3><div class="doc"><pre> let context = hashidsSimple &quot;this is my salt&quot; in map (encode context) [1..5]
 </pre><pre> [&quot;NV&quot;,&quot;6m&quot;,&quot;yD&quot;,&quot;2l&quot;,&quot;rD&quot;]
 </pre></div><h2 id="g:7">Curses! #$%@
-</h2><div class="doc"><p>The algorithm tries to avoid generating common curse words in English by 
+</h2><div class="doc"><p>The algorithm tries to avoid generating common curse words in English by
  never placing the following letters next to each other:
 </p><pre> c, C, s, S, f, F, h, H, u, U, i, I, t, T
 </pre></div><h1 id="g:8">API
@@ -112,11 +112,11 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </h2><div class="top"><p class="src"><a name="v:createHashidsContext" class="def">createHashidsContext</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; Int</td><td class="doc"><p>Minimum required hash length
 </p></td></tr><tr><td class="src">-&gt; String</td><td class="doc"><p>Alphabet
-</p></td></tr><tr><td class="src">-&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Create a context object using the given salt, a minimum hash length, and 
-   a custom alphabet. If you only need to supply the salt, or the first two 
+</p></td></tr><tr><td class="src">-&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Create a context object using the given salt, a minimum hash length, and
+   a custom alphabet. If you only need to supply the salt, or the first two
    arguments, use <code><a href="Web-Hashids.html#v:hashidsSimple">hashidsSimple</a></code> or <code><a href="Web-Hashids.html#v:hashidsMinimum">hashidsMinimum</a></code> instead.
 </p><p>Changing the alphabet is useful if you want to make your hashes unique,
-   i.e., create hashes different from those generated by other applications 
+   i.e., create hashes different from those generated by other applications
    relying on the same algorithm.
 </p></div></div><div class="top"><p class="src"><a name="v:hashidsSimple" class="def">hashidsSimple</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Create a context object using the default alphabet and the provided salt,
@@ -124,19 +124,19 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </p></div></div><div class="top"><p class="src"><a name="v:hashidsMinimum" class="def">hashidsMinimum</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; Int</td><td class="doc"><p>Minimum required hash length
 </p></td></tr><tr><td class="src">-&gt; <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Create a context object using the default alphabet and the provided salt.
-   The generated hashes will have a minimum length as specified by the second 
+   The generated hashes will have a minimum length as specified by the second
    argument.
 </p></div></div><h2 id="g:10">Encoding and decoding
 </h2><div class="top"><p class="src"><a name="v:encodeHex" class="def">encodeHex</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc"><p>A Hashids context object
 </p></td></tr><tr><td class="src">-&gt; String</td><td class="doc"><p>Hexadecimal number represented as a string
 </p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a hexadecimal number.
 </p><p><em>Example use:</em>
-</p><pre> encodeHex context &quot;ff83&quot;      
+</p><pre> encodeHex context &quot;ff83&quot;
 </pre></div></div><div class="top"><p class="src"><a name="v:decodeHex" class="def">decodeHex</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc"><p>A Hashids context object
 </p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc"><p>Hash
 </p></td></tr><tr><td class="src">-&gt; String</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Decode a hash generated with <code><a href="Web-Hashids.html#v:encodeHex">encodeHex</a></code>.
 </p><p><em>Example use:</em>
-</p><pre> decodeHex context &quot;yzgwD&quot;      
+</p><pre> decodeHex context &quot;yzgwD&quot;
 </pre></div></div><div class="top"><p class="src"><a name="v:encode" class="def">encode</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="Web-Hashids.html#t:HashidsContext">HashidsContext</a></td><td class="doc"><p>A Hashids context object
 </p></td></tr><tr><td class="src">-&gt; Int</td><td class="doc"><p>Number to encode
 </p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a single number.
@@ -158,21 +158,21 @@ window.onload = function () {pageLoad();setSynopsis("mini_Web-Hashids.html");};
 </pre></div></div><h2 id="g:11">Convenience wrappers
 </h2><div class="top"><p class="src"><a name="v:encodeUsingSalt" class="def">encodeUsingSalt</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; Int</td><td class="doc"><p>Number
-</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a number using the provided salt. 
-</p><p>This convenience function creates a context with the default alphabet. 
-   If the same context is used repeatedly, use <code><a href="Web-Hashids.html#v:encode">encode</a></code> with one of the 
+</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a number using the provided salt.
+</p><p>This convenience function creates a context with the default alphabet.
+   If the same context is used repeatedly, use <code><a href="Web-Hashids.html#v:encode">encode</a></code> with one of the
    constructors instead.
 </p></div></div><div class="top"><p class="src"><a name="v:encodeListUsingSalt" class="def">encodeListUsingSalt</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; [Int]</td><td class="doc"><p>Numbers
-</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a list of numbers using the provided salt. 
-</p><p>This function wrapper creates a context with the default alphabet. 
+</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encode a list of numbers using the provided salt.
+</p><p>This function wrapper creates a context with the default alphabet.
    If the same context is used repeatedly, use <code><a href="Web-Hashids.html#v:encodeList">encodeList</a></code> with one of the
    constructors instead.
 </p></div></div><div class="top"><p class="src"><a name="v:decodeUsingSalt" class="def">decodeUsingSalt</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc"><p>Hash
-</p></td></tr><tr><td class="src">-&gt; [Int]</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Decode a hash using the provided salt. 
-</p><p>This convenience function creates a context with the default alphabet. 
-   If the same context is used repeatedly, use <code><a href="Web-Hashids.html#v:decode">decode</a></code> with one of the 
+</p></td></tr><tr><td class="src">-&gt; [Int]</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Decode a hash using the provided salt.
+</p><p>This convenience function creates a context with the default alphabet.
+   If the same context is used repeatedly, use <code><a href="Web-Hashids.html#v:decode">decode</a></code> with one of the
    constructors instead.
 </p></div></div><div class="top"><p class="src"><a name="v:encodeHexUsingSalt" class="def">encodeHexUsingSalt</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: ByteString</td><td class="doc"><p>Salt
 </p></td></tr><tr><td class="src">-&gt; String</td><td class="doc"><p>Hexadecimal number represented as a string
