@@ -13,7 +13,7 @@ maintainer:          hildenjohannes@gmail.com
 -- copyright:           
 category:            Web
 build-type:          Simple
--- extra-source-files:  
+extra-source-files:  tests/*.txt
 cabal-version:       >=1.10
 
 library
