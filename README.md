@@ -1,4 +1,4 @@
-# hashids-haskell
+# hashids-haskell  [![Build Status](https://img.shields.io/travis/johanneshilden/hashids-haskell/master.svg?style=flat)](https://travis-ci.org/johanneshilden/hashids-haskell)
 
 Haskell port of the Hashids library. http://hashids.org
 
