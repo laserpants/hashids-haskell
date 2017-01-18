@@ -452,11 +452,11 @@ consistentShuffle alphabet salt
          in (p', shuffled)
 
 unhash :: ByteString -> ByteString -> Int
-unhash input alphabet = fst $ BS.foldl' go (0, pred $ BS.length input) input
+unhash input alphabet = BS.foldl' go 0 input
   where
-    go (num, i) w8 =
-        let Just index = BS.elemIndex w8 alphabet
-         in (num + index * alphabetLength ^ i, pred i)
+    go carry item =
+        let Just index = BS.elemIndex item alphabet
+         in carry * alphabetLength + index
     alphabetLength = BS.length alphabet
 
 hash :: Int -> ByteString -> ByteString
