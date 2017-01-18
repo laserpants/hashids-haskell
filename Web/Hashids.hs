@@ -3,8 +3,7 @@
 
 -- | This is a Haskell port of the Hashids library by Ivan Akimov.
 --   This is /not/ a cryptographic hashing algorithm. Hashids is typically
---   used to encode numbers to a format suitable for appearance in places
---   like urls.
+--   used to encode numbers to a format suitable to appear in places like urls.
 --
 -- See the official Hashids home page: <http://hashids.org>
 --
