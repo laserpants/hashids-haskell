@@ -9,7 +9,7 @@ homepage:            http://hashids.org/
 license:             MIT
 license-file:        LICENSE
 author:              Johannes Hildén
-maintainer:          hildenjohannes@gmail.com
+maintainer:          johannes@isomorphic.co
 -- copyright:           
 category:            Web
 build-type:          Simple
