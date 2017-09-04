@@ -32,4 +32,4 @@ Test-Suite consistency
 
 Source-Repository head
   type: git
-  location: https://github.com/johanneshilden/hashids-haskell
+  location: https://github.com/laserpants/hashids-haskell
