@@ -33,4 +33,3 @@ script:
    set -ex
    stack --no-terminal test --ghc-options="$GHC_OPTIONS"
    set +ex
-
