@@ -3,6 +3,7 @@
 Haskell port of the Hashids library. http://hashids.org
 
 * Hackage: http://hackage.haskell.org/package/hashids
+* Stackage: https://www.stackage.org/package/hashids
 * Docs: http://hackage.haskell.org/package/hashids/docs/Web-Hashids.html
 
 ##### Install: 
