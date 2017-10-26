@@ -12,6 +12,8 @@ Haskell port of the Hashids library. http://hashids.org
 cabal install hashids
 ```
 
+or using [Stack](https://www.haskellstack.org/):
+
 ```
 stack install hashids
 ```
