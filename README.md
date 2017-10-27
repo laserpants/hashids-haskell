@@ -1,4 +1,4 @@
-# ![hashids-haskell](http://hashids.org/public/img/hashids-logo-normal.png "Hashids") [![Build Status](https://img.shields.io/travis/laserpants/hashids-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/hashids-haskell) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Language](https://img.shields.io/badge/language-Haskell-orange.svg)](https://www.haskell.org/)
+# ![hashids-haskell](http://hashids.org/public/img/hashids-logo-normal.png "Hashids") [![Build Status](https://img.shields.io/travis/laserpants/hashids-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/hashids-haskell) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Language](https://img.shields.io/badge/language-Haskell-yellow.svg)](https://www.haskell.org/) [![Hackage](https://img.shields.io/hackage/v/hashids.svg)](http://hackage.haskell.org/package/hashids)
 
 Haskell port of the Hashids library. http://hashids.org
 
