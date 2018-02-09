@@ -29,6 +29,8 @@ Test-Suite consistency
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
   build-depends:       base, containers, bytestring, split
+  default-language:    Haskell2010
+  other-modules:       Web.Hashids
 
 Source-Repository head
   type: git
