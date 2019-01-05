@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
--- | This is a Haskell port of Ivan Akimov's Hashids library. This is /not/ 
---   a cryptographic hashing algorithm. Hashids is typically used to encode 
+-- | This is a Haskell port of Ivan Akimov's Hashids library. This is /not/
+--   a cryptographic hashing algorithm. Hashids is typically used to encode
 --   numbers to a format suitable to appear in places like URLs.
 --
 -- See the official Hashids home page: <http://hashids.org>
@@ -56,16 +56,16 @@ module Web.Hashids
     , decodeHexUsingSalt
     ) where
 
-import Data.ByteString                   ( ByteString )
-import Data.Foldable                     ( toList )
-import Data.List                         ( (\\), nub, intersect, foldl' )
-import Data.List.Split                   ( chunksOf )
-import Data.Sequence                     ( Seq )
-import Numeric                           ( showHex, readHex )
+import           Data.ByteString       (ByteString)
+import           Data.Foldable         (toList)
+import           Data.List             (foldl', intersect, nub, (\\))
+import           Data.List.Split       (chunksOf)
+import           Data.Sequence         (Seq)
+import           Numeric               (readHex, showHex)
 
-import qualified Data.ByteString         as BS
-import qualified Data.ByteString.Char8   as C8
-import qualified Data.Sequence           as Seq
+import qualified Data.ByteString       as BS
+import qualified Data.ByteString.Char8 as C8
+import qualified Data.Sequence         as Seq
 
 -- $howto
 --
