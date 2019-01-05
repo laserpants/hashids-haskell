@@ -22,7 +22,7 @@ library
   other-extensions:    RecordWildCards
   build-depends:       base ==4.*, bytestring, containers, split
 
-  -- hs-source-dirs:
+  hs-source-dirs:      src
   default-language:    Haskell2010
 
 Test-Suite consistency
