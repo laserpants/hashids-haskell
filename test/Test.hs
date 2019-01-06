@@ -2,7 +2,6 @@
 
 module Main where
 
-import           Control.Applicative       ((<$>))
 import           Control.Monad             (forM_, unless, void)
 import           Data.ByteString           (ByteString)
 import           Data.ByteString.Char8     (pack)
@@ -14,7 +13,7 @@ import           Test.Web.Hashids.Property (tests)
 
 pair :: [a] -> [(a, a)]
 pair []       = []
-pair [x]      = []
+pair [_]      = []
 pair (x:y:xs) = (x, y):pair xs
 
 hashidsContext :: HashidsContext

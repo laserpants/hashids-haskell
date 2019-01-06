@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3c7a200423f3757070915ba95d9e9fe6c80ed6ee16dd3d6c5bdf4ed17f37e009
+-- hash: 62bddc20ca9de6bb8a0907ade6ed00759ff3a537ebe1458b861c6818114d39e7
 
 name:           hashids
 version:        1.0.2.5
@@ -31,6 +31,7 @@ library
       Paths_hashids
   hs-source-dirs:
       src
+  ghc-options: -Wall -Werror -Wcompat
   build-depends:
       base
     , bytestring
@@ -47,7 +48,7 @@ test-suite hashids-test
       Paths_hashids
   hs-source-dirs:
       test
-  ghc-options: -threaded
+  ghc-options: -Wall -Werror -Wcompat -threaded
   build-depends:
       base
     , bytestring

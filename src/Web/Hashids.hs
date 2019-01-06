@@ -56,6 +56,8 @@ module Web.Hashids
     , decodeHexUsingSalt
     ) where
 
+import           Prelude               hiding (last, minimum, seq, tail)
+
 import           Data.ByteString       (ByteString)
 import           Data.Foldable         (toList)
 import           Data.List             (foldl', intersect, nub, (\\))
@@ -267,8 +269,8 @@ createHashidsContext salt minHashLen alphabet
     uniqueAlphabet    = nub alphabet
     alphabet'         = C8.pack $ uniqueAlphabet \\ seps
     minAlphabetLength = 16
-    sepDiv            = 3.5
-    guardDiv          = 12
+    sepDiv            = 3.5 :: Double
+    guardDiv          = 12 :: Double
     seps              = "cfhistuCFHISTU"
 
 defaultAlphabet :: String
@@ -297,9 +299,9 @@ hashidsMinimum salt minimum = createHashidsContext salt minimum defaultAlphabet
 decodeHex :: HashidsContext     -- ^ A Hashids context object
           -> ByteString         -- ^ Hash
           -> String
-decodeHex context hash = concatMap (drop 1 . flip showHex "") numbers
+decodeHex context hashDigest = concatMap (drop 1 . flip showHex "") numbers
   where
-    numbers = decode context hash
+    numbers = decode context hashDigest
 
 -- | Encode a hexadecimal number.
 --
@@ -310,9 +312,9 @@ decodeHex context hash = concatMap (drop 1 . flip showHex "") numbers
 encodeHex :: HashidsContext     -- ^ A Hashids context object
           -> String             -- ^ Hexadecimal number represented as a string
           -> ByteString
-encodeHex context str
-    | not (all hexChar str) = ""
-    | otherwise = encodeList context $ map go $ chunksOf 12 str
+encodeHex context hexStr
+    | not (all hexChar hexStr) = ""
+    | otherwise = encodeList context $ map go $ chunksOf 12 hexStr
   where
     go str = let [(a,_)] = readHex ('1':str) in a
     hexChar c = c `elem` ("0123456789abcdefABCDEF" :: String)
@@ -327,9 +329,9 @@ encodeHex context str
 decode :: HashidsContext     -- ^ A Hashids context object
        -> ByteString         -- ^ Hash
        -> [Int]
-decode ctx@Context{..} hash
-    | BS.null hash = []
-    | encodeList ctx res /= hash = []
+decode ctx@Context{..} hashDigest
+    | BS.null hashDigest = []
+    | encodeList ctx res /= hashDigest = []
     | otherwise = res
   where
     res = splitOn seps tail
@@ -337,10 +339,9 @@ decode ctx@Context{..} hash
             |> fst
             |> reverse
 
-    hashArray = splitOn guards hash
-    alphabetLength = BS.length alphabet
+    hashArray = splitOn guards hashDigest
 
-    Just str@(lottery, tail) =
+    Just (lottery, tail) =
          BS.uncons $ hashArray !! case length hashArray of
             0 -> error "Internal error."
             2 -> 1
