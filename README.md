@@ -6,7 +6,7 @@ Haskell port of the Hashids library. http://hashids.org
 * Stackage: https://www.stackage.org/package/hashids
 * Docs: http://hackage.haskell.org/package/hashids/docs/Web-Hashids.html
 
-##### Install: 
+##### Install:
 
 ```
 cabal install hashids
