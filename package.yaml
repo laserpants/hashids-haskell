@@ -1,0 +1,35 @@
+name: hashids
+version: 1.0.2.5
+synopsis: Hashids generates short, unique, non-sequential ids from numbers.
+description: This is a Haskell port of the Hashids library. It is typically used to encode numbers to a format suitable to appear in visible places like urls. It converts numbers like 347 into strings like yr8, or a list of numbers like [27, 986] into 3kTMd. You can also decode those ids back. This is useful in bundling several parameters into one.
+homepage: http://hashids.org/
+license: MIT
+license-file: LICENSE
+author: Johannes Hildén <hildenjohannes@gmail.com>
+maintainer: Johannes Hildén <hildenjohannes@gmail.com>
+github: laserpants/hashids-haskell
+category: Web
+build-type: Simple
+extra-source-files:
+  - test/testdata/*.txt
+
+dependencies:
+  - base
+  - bytestring
+  - containers
+  - split
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Web.Hashids
+
+tests:
+  hashids-test:
+    main: Test.hs
+    source-dirs:
+      - test
+    dependencies:
+      - hashids
+      - hedgehog
+    ghc-options: -threaded
