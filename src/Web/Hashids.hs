@@ -209,7 +209,8 @@ data HashidsContext = Context
     , seps          :: !ByteString
     , salt          :: !ByteString
     , minHashLength :: !Int
-    , alphabet      :: !ByteString }
+    , alphabet      :: !ByteString
+    } deriving (Show)
 
 -- | Hashids version number.
 version :: String
