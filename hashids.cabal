@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 62bddc20ca9de6bb8a0907ade6ed00759ff3a537ebe1458b861c6818114d39e7
+-- hash: 3f77232e7252f10e3369e975dfb97c9464b2a7982430f2a4fafff7561e889c0c
 
 name:           hashids
-version:        1.0.2.5
+version:        1.0.2.6
 synopsis:       Hashids generates short, unique, non-sequential ids from numbers.
 description:    This is a Haskell port of the Hashids library. It is typically used to encode numbers to a format suitable to appear in visible places like urls. It converts numbers like 347 into strings like yr8, or a list of numbers like [27, 986] into 3kTMd. You can also decode those ids back. This is useful in bundling several parameters into one.
 category:       Web
