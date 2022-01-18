@@ -5,11 +5,12 @@ module Test.Web.Hashids.Property
     ) where
 
 import           Control.Applicative   ((<$>))
+import           Control.Monad         (void)
 import qualified Data.ByteString       as BS
 import qualified Data.ByteString.Char8 as C
-import           Hedgehog              (Property, assert, checkParallel,
-                                        discover, forAll, property, tripping,
-                                        withTests)
+import           Hedgehog              (Property, PropertyT, assert,
+                                        checkParallel, discover, eval, forAll,
+                                        property, tripping, withTests)
 import qualified Hedgehog.Gen          as Gen
 import qualified Hedgehog.Range        as Range
 
@@ -73,6 +74,36 @@ prop_encMinLength =
         x             <- forAll (Gen.integral Range.constantBounded)
         let hashids = encode context x
         assert $ BS.length hashids >= minHashLength
+
+encodedRange :: Int -> Range.Range Int
+encodedRange minLength = Range.exponentialFrom minLength minLength 10000
+
+assertDecodeReturns :: HashidsContext -> BS.ByteString -> PropertyT IO ()
+assertDecodeReturns context encoded =
+    -- `length` evaluates the output to NF, not just WHNF.
+    void $ eval $ length $ decode context encoded
+
+-- | Check that `decode` is a complete function, testing completely arbitrary
+-- inputs.
+prop_decComplete :: Property
+prop_decComplete =
+    withTests 500 $ property $ do
+        context <- forAll genHashidsContext
+        encoded <- forAll (Gen.bytes $ encodedRange 0)
+        assertDecodeReturns context encoded
+
+-- | Check that `decode` is a complete function, specifically testing inputs
+-- that look like valid encodings.
+prop_decCompleteLooksValid :: Property
+prop_decCompleteLooksValid =
+    withTests 500 $ property $ do
+        salt <- forAll genSalt
+        minLen <- forAll genMinHashLength
+        alphabet <- forAll genAlphabet
+        let context = createHashidsContext salt minLen alphabet
+            charGen = Gen.element alphabet
+        encoded <- C.pack <$> forAll (Gen.list (encodedRange minLen) charGen)
+        assertDecodeReturns context encoded
 
 tests :: IO Bool
 tests = and <$> sequence

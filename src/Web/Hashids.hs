@@ -58,11 +58,14 @@ module Web.Hashids
 
 import           Prelude               hiding (last, minimum, seq, tail)
 
+import           Control.Monad         (foldM)
 import           Data.ByteString       (ByteString)
 import           Data.Foldable         (toList)
 import           Data.List             (foldl', intersect, nub, (\\))
 import           Data.List.Split       (chunksOf)
+import           Data.Maybe            (fromMaybe)
 import           Data.Sequence         (Seq)
+import           Data.Word             (Word8)
 import           Numeric               (readHex, showHex)
 
 import qualified Data.ByteString       as BS
@@ -331,29 +334,35 @@ decode :: HashidsContext     -- ^ A Hashids context object
        -> [Int]
 decode ctx@Context{..} hashDigest
     | BS.null hashDigest = []
+    | res == [] = []
+    | any (< 0) res = []
     | encodeList ctx res /= hashDigest = []
     | otherwise = res
   where
-    res = splitOn seps tail
-            |> foldl' go ([], alphabet)
-            |> fst
-            |> reverse
+    res = fromMaybe [] $ do
+      (lottery, tail) <- mLotteryAndTail
+      let prefix = BS.cons lottery salt
+      res' <- foldM (go prefix) ([], alphabet) (splitOn seps tail)
+      return $ reverse $ fst res'
 
     hashArray = splitOn guards hashDigest
 
-    Just (lottery, tail) =
+    mLotteryAndTail =
          BS.uncons $ hashArray !! case length hashArray of
             0 -> error "Internal error."
             2 -> 1
             3 -> 1
             _ -> 0
 
-    prefix = BS.cons lottery salt
-
-    go (xs, ab) ssh =
+    go :: ByteString
+       -> ([Int], ByteString)
+       -> ByteString
+       -> Maybe ([Int], ByteString)
+    go prefix (xs, ab) ssh = do
         let buffer = prefix `BS.append` ab
             ab'    = consistentShuffle ab buffer
-         in (unhash ssh ab':xs, ab')
+        unh <- unhash ssh ab'
+        return (unh:xs, ab')
 
 numbersHashInt :: [Int] -> Int
 numbersHashInt xs = foldr ((+) . uncurry mod) 0 $ zip xs [100 .. ]
@@ -452,12 +461,14 @@ consistentShuffle alphabet salt
             j  = mod (ch + v + p') i
          in (p', shuffled)
 
-unhash :: ByteString -> ByteString -> Int
-unhash input alphabet = BS.foldl' go 0 input
+unhash :: ByteString -> ByteString -> Maybe Int
+unhash input alphabet = BS.foldl' go (Just 0) input
   where
-    go carry item =
-        let Just index = BS.elemIndex item alphabet
-         in carry * alphabetLength + index
+    go :: Maybe Int -> Word8 -> Maybe Int
+    go Nothing _ = Nothing
+    go (Just carry) item = do
+      index <- BS.elemIndex item alphabet
+      return $ carry * alphabetLength + index
     alphabetLength = BS.length alphabet
 
 hash :: Int -> ByteString -> ByteString
