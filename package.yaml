@@ -13,7 +13,7 @@ build-type: Simple
 extra-source-files:
   - test/testdata/*.txt
 
-ghc-options: -Wall -Werror -Wcompat
+ghc-options: -Wall -Wcompat
 
 dependencies:
   - base >=4.9 && <4.17
