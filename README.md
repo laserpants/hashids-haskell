@@ -1,5 +1,5 @@
 # ![hashids-haskell](http://hashids.org/public/img/hashids-logo-normal.png "Hashids")
-[![Build Status](https://img.shields.io/travis/laserpants/hashids-haskell/master.svg?style=flat)](https://travis-ci.org/laserpants/hashids-haskell) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Language](https://img.shields.io/badge/language-Haskell-orange.svg)](https://www.haskell.org/) [![Hackage](https://img.shields.io/hackage/v/hashids.svg)](http://hackage.haskell.org/package/hashids)  [![Version](https://img.shields.io/badge/hashids--version-1.0-blue.svg?colorB=ff69b4)](http://hashids.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Language](https://img.shields.io/badge/language-Haskell-orange.svg)](https://www.haskell.org/) [![Hackage](https://img.shields.io/hackage/v/hashids.svg)](http://hackage.haskell.org/package/hashids)  [![Version](https://img.shields.io/badge/hashids--version-1.0-blue.svg?colorB=ff69b4)](http://hashids.org/)
 [![Haskell CI](https://github.com/laserpants/hashids-haskell/actions/workflows/haskell.yml/badge.svg)](https://github.com/laserpants/hashids-haskell/actions/workflows/haskell.yml)
 
 Haskell port of the Hashids library. http://hashids.org
