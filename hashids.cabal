@@ -1,13 +1,11 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 6090889a8c05f27504caf0e07c2e657e765951c52b8dca7fbd8c3b8c2a58489e
 
 name:           hashids
-version:        1.0.2.7
+version:        1.1.0.0
 synopsis:       Hashids generates short, unique, non-sequential ids from numbers.
 description:    This is a Haskell port of the Hashids library. It is typically used to encode numbers to a format suitable to appear in visible places like urls. It converts numbers like 347 into strings like yr8, or a list of numbers like [27, 986] into 3kTMd. You can also decode those ids back. This is useful in bundling several parameters into one.
 category:       Web
@@ -34,10 +32,10 @@ library
       src
   ghc-options: -Wall -Wcompat
   build-depends:
-      base >=4.9 && <4.17
-    , bytestring >=0.10.8.1 && <0.12
-    , containers >=0.5.7.1 && <0.7
-    , split >=0.2.3.2 && <0.3
+      base >=4.9 && <5
+    , bytestring >=0.10.8.1 && <=0.12.0.0
+    , containers >=0.5.7.1 && <0.7.0
+    , split >=0.2.3.2 && <0.3.0.0
   default-language: Haskell2010
 
 test-suite hashids-test
@@ -51,10 +49,10 @@ test-suite hashids-test
       test
   ghc-options: -Wall -Wcompat -threaded
   build-depends:
-      base >=4.9 && <4.17
-    , bytestring >=0.10.8.1 && <0.12
-    , containers >=0.5.7.1 && <0.7
+      base >=4.9 && <5
+    , bytestring >=0.10.8.1 && <=0.12.0.0
+    , containers >=0.5.7.1 && <0.7.0
     , hashids
     , hedgehog
-    , split >=0.2.3.2 && <0.3
+    , split >=0.2.3.2 && <0.3.0.0
   default-language: Haskell2010
